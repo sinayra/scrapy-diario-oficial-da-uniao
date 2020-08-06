@@ -23,16 +23,28 @@ class Dou(scrapy.Spider):
         yield scrapy.Request(url, self.parse)
 
     def parse(self, response):
-        results = []
+        urls = []
         sel = Selector(response)
         extracted  = sel.xpath("//script[@type='application/json']/text()").extract_first()
         json_data = json.loads(extracted)
         jsonArray = json_data["jsonArray"]
         for item in jsonArray:
-            results.append({
-                "artType" : item["artType"],
-                "url" : "https://www.in.gov.br/web/dou/-/" + item["urlTitle"],
-                "title" : item["title"],
-                "numberPage" : int(item["numberPage"])
-            })
-        return results
+            url = "https://www.in.gov.br/en/web/dou/-/" + item["urlTitle"]
+            yield scrapy.Request(url, callback=self.parseSection)
+
+    def parseSection(self, response):
+        sel = Selector(response)
+        douElem = sel.xpath("//article[@id='materia']")
+        
+        artType = douElem.xpath("//span[@class='orgao-dou-data']/text()").extract_first()
+        title = douElem.xpath("//p[@class='identifica']/text()").extract_first()
+        paragraphs = douElem.xpath("//p[@class='dou-paragraph']/text()").extract()
+        page = douElem.xpath("//span[@class='secao-dou-data']/text()").extract_first()
+        url = response.request.url
+        yield {
+            "page": int(page),
+            "artType": artType,
+            "title": title,
+            "paragraphs": '\n'.join(paragraphs),
+            "url": url
+        }
