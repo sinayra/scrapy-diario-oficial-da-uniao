@@ -4,7 +4,7 @@ from itemadapter import ItemAdapter
 # pipeline to fill the items list
 class ItemCollectorPipeline(object):
     def open_spider(self, spider):
-        self.file = open('items.jl', 'w', encoding='utf-8')
+        self.file = open('tmp/' + spider.name + '.jl', 'w', encoding='utf-8')
 
     def close_spider(self, spider):
         self.file.close()

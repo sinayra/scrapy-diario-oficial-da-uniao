@@ -1,10 +1,13 @@
-from scrapy.crawler import CrawlerProcess
+from scrapy.crawler import CrawlerRunner
+from twisted.internet import reactor, defer
 from ItemCollectorPipeline import ItemCollectorPipeline
 from datetime import datetime
 import logging
 import sys, getopt
+import json_lines
 
 from dou import Dou
+from douSection import DouSection
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "l:", ["log="])
@@ -20,7 +23,7 @@ logging.basicConfig(filename=logName, level=levelLogging, format='%(asctime)s %(
 logger = logging.getLogger(__name__)
 
 # create a crawler process with the specified settings
-process = CrawlerProcess(
+runner  = CrawlerRunner(
     {
         'USER_AGENT': 'scrapy',
         'LOG_LEVEL': 'INFO',
@@ -29,5 +32,15 @@ process = CrawlerProcess(
         'ITEM_PIPELINES': { '__main__.ItemCollectorPipeline': 100 }
     }
 )
-process.crawl(Dou, data="06-08-2020", secao="do3")
-process.start()
+@defer.inlineCallbacks
+def crawl():
+    yield runner.crawl(Dou, data="06-08-2020", secao="do3")
+    urls = []
+    with open('tmp/diario-oficial-da-uniao.jl', 'rb') as f:
+        for item in json_lines.reader(f):
+            urls.append(item['url'])
+    yield runner.crawl(DouSection, start_urls=urls)
+    reactor.stop()
+
+crawl()
+reactor.run() # the script will block here until the last crawl call is finished
