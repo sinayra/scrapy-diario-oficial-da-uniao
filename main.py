@@ -1,9 +1,11 @@
 from scrapy.crawler import CrawlerProcess
 from ItemCollectorPipeline import ItemCollectorPipeline
-from spider import QuotesSpider
 from datetime import datetime
-import sys, getopt
 import logging
+import sys, getopt
+
+from dou import Dou
+
 try:
     opts, args = getopt.getopt(sys.argv[1:], "l:", ["log="])
 except getopt.error as err:
@@ -27,5 +29,5 @@ process = CrawlerProcess(
         'ITEM_PIPELINES': { '__main__.ItemCollectorPipeline': 100 }
     }
 )
-process.crawl(QuotesSpider)
+process.crawl(Dou, data="06-08-2020", secao="do3")
 process.start()
