@@ -41,7 +41,7 @@ class Dou(scrapy.Spider):
         paragraphs = douElem.xpath("//p[@class='dou-paragraph']/text()").extract()
         page = douElem.xpath("//span[@class='secao-dou-data']/text()").extract_first()
         url = response.request.url
-        yield {
+        return {
             "page": int(page),
             "artType": artType,
             "title": title,
