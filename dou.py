@@ -12,7 +12,7 @@ class Dou(scrapy.Spider):
     def __init__(self, data, secao):
         self.data = data
         self.secao = secao
-        logging.getLogger('scrapy.core.scraper').addFilter(lambda x: not x.getMessage().startswith('Scraped from'))
+        #logging.getLogger('scrapy.core.scraper').addFilter(lambda x: not x.getMessage().startswith('Scraped from'))
 
     def start_requests(self):
         url = self.base_url + "?data=" + self.data + "&secao=" + self.secao
@@ -27,5 +27,6 @@ class Dou(scrapy.Spider):
         for item in jsonArray:
             url = "https://www.in.gov.br/en/web/dou/-/" + item["urlTitle"]
             yield {
-                    "url" : url
+                    "url" : url,
+                    "numberPage": int(item["numberPage"])
                 }

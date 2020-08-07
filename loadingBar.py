@@ -1,15 +1,30 @@
 import sys
+import time
 from queue import Queue
 
-def loadingBar(_sentinel, count, consumer_queue, prefix="", size=60):
-
+def loadingBar(consumer_queue, _sentinel, count, prefix="", size=60):   
+    time.sleep(1)
+    j = 0
     while True:
-        j = consumer_queue.get()
+        if not consumer_queue.empty():
+            data = consumer_queue.get(block = False)
+            if data < 0:
+                data *= -1
 
-        if j is _sentinel: 
-            consumer_queue.put(_sentinel) 
-            break
-        x = int(size*j/count) + 1
-        sys.stdout.write("%s[%s%s] %i/%i\r" % (prefix, "#"*x, "."*(size - x), j, count + 1))
-        sys.stdout.flush()
-    print('\n')
+            if data > j:
+                j = data
+
+            if data >= count: 
+                x = int(size*j/(count - 1))
+                sys.stdout.write("%s: complete!\r" % (prefix))
+                sys.stdout.flush()
+                sys.stdout.write('\n')
+                break
+
+            x = int(size*j/(count - 1))
+            sys.stdout.write("%s[%s%s] %i/%i\r" % (prefix, "#"*x, "."*(size - x), j, count - 1))
+            sys.stdout.flush()
+        else:
+            time.sleep(1)
+
+    
