@@ -2,7 +2,7 @@ import sys
 import time
 from queue import Queue
 
-def loadingWheel(consumer_queue, _sentinel, message) :
+def loadingWheel(consumer_queue, message) :
     chars = "/—\|" 
     time.sleep(1)
     while True :
@@ -14,7 +14,7 @@ def loadingWheel(consumer_queue, _sentinel, message) :
         
         if not consumer_queue.empty():
             data = consumer_queue.get(block = False)
-            if data is _sentinel: 
+            if data == False: 
                 sys.stdout.write('\r' + message + ': complete!')
                 sys.stdout.write('\n')
                 sys.stdout.flush()

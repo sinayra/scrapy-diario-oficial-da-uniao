@@ -25,7 +25,7 @@ except getopt.error as err:
     print (str(err))
     sys.exit(2)
 
-levelLogging = getattr(logging, opts[0][1].upper()) if opts and opts[0][0] in ("-l", "--log") else logging.DEBUG
+levelLogging = getattr(logging, opts[0][1].upper()) if opts and opts[0][0] in ("-l", "--log") else logging.INFO
 
 logName = "log/log-" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".log"
 logging.basicConfig(handlers=[logging.FileHandler(logName, 'w', 'utf-8')], level=levelLogging, format='%(asctime)s %(levelname)s %(name)s %(message)s')
@@ -59,15 +59,13 @@ def readSections():
 
 @defer.inlineCallbacks
 def crawl():
-    # Object that signals shutdown 
-    _sentinel = object() 
 
     queueData1 = queue.Queue()
     queueData1.put(True)
-    t1 = threading.Thread(target=loadingWheel, args=(queueData1, _sentinel, "Fetching DOU from 06-08-2020 "))
+    t1 = threading.Thread(target=loadingWheel, args=(queueData1, "Fetching DOU from 06-08-2020 "))
     t1.start()
     yield runner.crawl(Dou, data="06-08-2020", secao="do3")
-    queueData1.put(_sentinel)
+    queueData1.put(False)
     yield t1.join()
 
     urls = []
@@ -75,7 +73,7 @@ def crawl():
 
     queueData2 = queue.PriorityQueue()
     queueData2.put(0)
-    t2 = threading.Thread(target=loadingBar, args=(queueData2, _sentinel, len(urls), "Building sections "))
+    t2 = threading.Thread(target=loadingBar, args=(queueData2, len(urls), "Building sections "))
     t2.start()
     yield runner.crawl(DouSection, queue=queueData2, start_urls=urls)
     queueData2.put(len(urls) * -1)
