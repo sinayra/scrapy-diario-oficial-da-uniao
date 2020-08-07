@@ -1,4 +1,4 @@
-# Leitor de seções do Diário da União
+# Crawler do Diário Oficial da União
 Projetinho em Python para buscar o conteúdo de um Diário da União a partir de uma data e um tipo de seção, gerando um arquivo `json` com os conteúdos encontrados. Ele utiliza a versão 3.8 do Python e o framework Scrapy.
 
 Este projeto serviu para eu treinar Python com um framework de *crawler* bastante conhecido que até então eu não possuía experiência. Porém, uma vez que o site da Imprensa não disponibilizou os dados do DOU de forma aberta, decidi deixar este projeto público para ajudar os devs do futuro que precisam fazer algum tipo de busca nesse site do governo. Existem outros projetos que fazem a mesma coisa que esse aqui meu, mas os que achei estavam com versões bem antigas do Python e usando frameworks descontinuados.
