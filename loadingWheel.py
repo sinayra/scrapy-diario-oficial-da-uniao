@@ -20,4 +20,4 @@ def loadingWheel(consumer_queue, message) :
                 sys.stdout.flush()
                 break
         else:
-            time.sleep(1)
+            time.sleep(.1)
