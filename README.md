@@ -1,4 +1,4 @@
-# Leitor de seções do Diário da União
+# Crawler do Diário Oficial da União
 Projetinho em Python para buscar o conteúdo de um Diário da União a partir de uma data e um tipo de seção, gerando um arquivo `json` com os conteúdos encontrados. Ele utiliza a versão 3.8 do Python e o framework Scrapy.
 
 Este projeto serviu para eu treinar Python com um framework de *crawler* bastante conhecido que até então eu não possuía experiência. Porém, uma vez que o site da Imprensa não disponibilizou os dados do DOU de forma aberta, decidi deixar este projeto público para ajudar os devs do futuro que precisam fazer algum tipo de busca nesse site do governo. Existem outros projetos que fazem a mesma coisa que esse aqui meu, mas os que achei estavam com versões bem antigas do Python e usando frameworks descontinuados.
@@ -18,6 +18,7 @@ O programa assume que:
 
 ## Fluxo do programa
 
+### Dependências
 ```python
 from scrapy.crawler import CrawlerRunner
 from ItemCollectorPipeline import ItemCollectorPipeline
@@ -25,17 +26,20 @@ from twisted.internet import reactor
 ```
 Primeiramente, inclui-se no programa principal algumas dependências do *runner* do Scrapy. Também inclui-se a classe `ItemCollectorPipeline`, que é uma classe criada para acessar o pipeline do Scrapy e escrever em um arquivo temporário o resultado do *parser* que estiver executando.
 
+### Configuração do Log
 ```python
 import loggerConfig
 ```
 O módulo `loggerConfig` configura o nível do log que será escrito, escrevendo o resultado na pasta *log* do projeto.
 
+### Módulos do programa
 ```python
 from crawlDou import crawlDou
 from writeResult import writeResult
 ```
 Inclui-se as funções de realizar o *Crawler* e a de escrever o resultado em um arquivo.
 
+### Configurações do crawler
 ```python
 runner  = CrawlerRunner(
     {
@@ -49,13 +53,15 @@ runner  = CrawlerRunner(
 
 Define-se inicialmente como o Crawler irá executar, incluindo a adição da classe `ItemCollectorPipeline` que sobrescreve a original.
 
+### Execução do crawler
 ```python
 crawlDou(runner, "07-08-2020", "dou3")
 reactor.run()
 ```
-A função `crawlDou` irá executar sequencialmente o *crawler* de buscar no site da Imprensa Nacional os links de cada uma das seções do diário especificado (com os argumentos `data` e `secao`), exibindo uma animação de *carregando* enquanto realiza a busca.
-Já a função `run` do `reactor` irá realizar uma chamada bloquante para impedir que o resto do programa execute até o último *crawler* ser executado.
+A função `crawlDou` irá executar sequencialmente o *crawler* de buscar no site da Imprensa Nacional os links de cada uma das seções do diário especificado (com os argumentos `data` e `secao`), exibindo uma animação de *carregando*. Após buscar todos os links das seções, ele executa um segundo *crawler* para buscar o conteúdo de cada uma das seções.
+A função `run` do `reactor` irá realizar uma chamada bloquante para impedir que o resto do programa execute até que o último *crawler* seja executado.
 
+### Escrevendo resultados
 ```python
 if (os.path.exists("secoes-diario-oficial-da-uniao.jl") and os.path.exists("diario-oficial-da-uniao.jl")):
     writeResult("result.json", "secoes-diario-oficial-da-uniao.jl", ["secoes-diario-oficial-da-uniao.jl", "diario-oficial-da-uniao.jl"])
