@@ -43,15 +43,26 @@ Inclui-se as funções de realizar o *Crawler* e a de escrever o resultado em um
 ```python
 runner  = CrawlerRunner(
     {
-        'USER_AGENT': 'scrapy',
+        'USER_AGENT': 'Sinayra-meuCrawlerComScrapy/1.0 (sinayra@hotmail.com)',
         'LOG_STDOUT': False,
         'LOG_ENABLED': True,
+        'ROBOTSTXT_OBEY' : True,
+        'RANDOMIZE_DOWNLOAD_DELAY': True,
+        'CONCURRENT_REQUESTS': 5,
+        'RETRY_TIMES' : 5,
+        'AUTOTHROTTLE_ENABLED' : True,
+        'HTTPCACHE_ENABLED': True,  # for development
         'ITEM_PIPELINES': { '__main__.ItemCollectorPipeline': 100 }
     }
 )
 ```
 
 Define-se inicialmente como o Crawler irá executar, incluindo a adição da classe `ItemCollectorPipeline` que sobrescreve a original.
+
+Algumas observações destas opções de configuração:
+*  :exclamation: Altere o *user-agent* para melhor identificar o seu crawler. :exclamation:
+* É possível alterar o número de requests simultâneos alterando a opção `CONCURRENT_REQUESTS`, o que irá melhorar o desempenho ao escrever o resultado do *parser*, mas evite colocar um número muito alto para não sobrecarregar o servidor do governo. Minha sugestão é colocar no máximo `20`.
+* Enquanto você estiver alterando algum spider (como o [spider dou](dou.py) ou [spider dou section](douSection.py)), habilite a opção `HTTPCACHE_ENABLED` como verdadeira, para o Scrapy salvar em cache as páginas e não precisar fazer uma nova requisição de uma página que ele já visitou. Se está tudo certinho com o que ele tem que buscar, desabilite esta opção.
 
 ### Execução do crawler
 ```python
