@@ -12,9 +12,15 @@ import os.path
 # create a crawler process with the specified settings
 runner  = CrawlerRunner(
     {
-        'USER_AGENT': 'scrapy',
+        'USER_AGENT': 'Sinayra-meuCrawlerComScrapy/1.0 (sinayra@hotmail.com)',
         'LOG_STDOUT': False,
         'LOG_ENABLED': True,
+        'ROBOTSTXT_OBEY' : True,
+        'RANDOMIZE_DOWNLOAD_DELAY': True,
+        'CONCURRENT_REQUESTS': 5,
+        'RETRY_TIMES' : 5,
+        'AUTOTHROTTLE_ENABLED' : True,
+        'HTTPCACHE_ENABLED': True,  # for development
         'ITEM_PIPELINES': { '__main__.ItemCollectorPipeline': 100 }
     }
 )
