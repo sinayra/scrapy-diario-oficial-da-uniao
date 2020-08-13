@@ -1,13 +1,12 @@
 import os
 import json
 
-from readJL import readJL
+from readDouJLFile import readDouJLFile
 
-def writeResult(result, fromFile, tmpFiles):
-    douSection = readJL(fromFile, True)
-
-    for tmp in tmpFiles:
-        os.remove(tmp)
+def writeResult(result, fromFile):
+    douSection = readDouJLFile(fromFile, sortByNumberPage=True)
 
     f = open(file=result, mode="w", encoding="utf-8")
     f.write(json.dumps(douSection, ensure_ascii=False, indent=4))
+
+    os.remove(fromFile)

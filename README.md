@@ -16,15 +16,23 @@ O programa assume que:
 * Na página da Imprensa, existe um script do tipo *application/json* com os dados de cada seção. Estes dados incluem o objeto `jsonArray` com o campo `urlTitle`.
 * Cada seção do DOU pode ser acessada a partir da concatenação do link https://www.in.gov.br/en/web/dou/-/ com `urlTitle`.
 
+### Dependências do projeto 
+
+Este projeto utiliza o Python 3.8.3 e o pip 20.2.2. Além deles, este projeto também depende do pacote `Scrapy` e do pacote `Json Lines`. Instale-os com o comando abaixo:
+
+```shell
+pip install Scrapy
+pip install json-lines
+```
+
 ## Fluxo do programa
 
-### Dependências
+### Imports
 ```python
 from scrapy.crawler import CrawlerRunner
-from ItemCollectorPipeline import ItemCollectorPipeline
 from twisted.internet import reactor
 ```
-Primeiramente, inclui-se no programa principal algumas dependências do *runner* do Scrapy. Também inclui-se a classe `ItemCollectorPipeline`, que é uma classe criada para acessar o pipeline do Scrapy e escrever em um arquivo temporário o resultado do *parser* que estiver executando.
+Primeiramente, inclui-se no programa principal alguns pacotes do *runner* do Scrapy. 
 
 ### Configuração do Log
 ```python
@@ -43,7 +51,7 @@ Inclui-se as funções de realizar o *Crawler* e a de escrever o resultado em um
 ```python
 runner  = CrawlerRunner(
     {
-        'USER_AGENT': 'Sinayra-meuCrawlerComScrapy/1.0 (sinayra@hotmail.com)',
+        'USER_AGENT': 'Sinayra-meuCrawlerComScrapy/1.1 (sinayra@hotmail.com)',
         'LOG_STDOUT': False,
         'LOG_ENABLED': True,
         'ROBOTSTXT_OBEY' : True,
@@ -52,12 +60,17 @@ runner  = CrawlerRunner(
         'RETRY_TIMES' : 5,
         'AUTOTHROTTLE_ENABLED' : True,
         'HTTPCACHE_ENABLED': True,  # for development
-        'ITEM_PIPELINES': { '__main__.ItemCollectorPipeline': 100 }
+        'FEEDS':{
+            'items.jl': {
+                'format': 'jsonlines',
+                'encoding': 'utf8'
+            }   
+        },
     }
 )
 ```
 
-Define-se inicialmente como o Crawler irá executar, incluindo a adição da classe `ItemCollectorPipeline` que sobrescreve a original.
+Define-se inicialmente como o Crawler irá executar.A opção `FEED` define onde o resultado do *crawler* será escrito. No caso, definiu-se que o arquivo se chama `items.jl` e é do formato `jsonlines`. Este arquivo será usado como auxiliar ao longo do programa.
 
 Algumas observações destas opções de configuração:
 *  :exclamation: Altere o *user-agent* para melhor identificar o seu crawler. :exclamation:
@@ -74,10 +87,10 @@ A função `run` do `reactor` irá realizar uma chamada bloquante para impedir q
 
 ### Escrevendo resultados
 ```python
-if (os.path.exists("secoes-diario-oficial-da-uniao.jl") and os.path.exists("diario-oficial-da-uniao.jl")):
-    writeResult("result.json", "secoes-diario-oficial-da-uniao.jl", ["secoes-diario-oficial-da-uniao.jl", "diario-oficial-da-uniao.jl"])
+if (os.path.exists("items.jl")):
+    writeResult("result.json", "items.jl")
 else:
     raise FileNotFoundError("Required files not found. Try again later")
 ```
 
-Por último, verifica-se se os arquivos temporários que foram gerados na etapa de *crawler* foram criados. Se foram, escreve o resultado no arquivo `result.json` a partir do arquivo `secoes-diario-oficial-da-uniao.jl` e em seguida remove os arquivos temporários definidos no array.
+Por último, verifica-se se os arquivos temporários que foram gerados na etapa de *crawler* foram criados. Se foram, escreve o resultado no arquivo `result.json` a partir do arquivo `items.jl`, removendo este logo em seguida.
