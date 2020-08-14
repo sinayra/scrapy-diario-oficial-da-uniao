@@ -28,6 +28,6 @@ runner  = CrawlerRunner(
     }
 )
 
-d = runner.crawl(DouSpider, data="07-08-2020", secao="dou3")
+d = runner.crawl(spiderDou, data="07-08-2020", secao="dou3")
 d.addBoth(lambda _: reactor.stop())
 reactor.run()  # the script will block here until the last crawl call is finished
