@@ -127,3 +127,4 @@ dmypy.json
 # result files
 result.json
 *.jl
+items.json
