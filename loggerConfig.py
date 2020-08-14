@@ -9,7 +9,11 @@ except getopt.error as err:
     print (str(err))
     sys.exit(2)
 
-levelLogging = getattr(logging, opts[0][1].upper()) if opts and opts[0][0] in ("-l", "--log") else logging.INFO
+levelLogging = getattr(logging, opts[0][1].upper()) if opts and opts[0][0] in ("-l", "--log") else logging.DEBUG
 
-logName = "log/log-" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".log"
-logging.basicConfig(handlers=[logging.FileHandler(logName, 'w', 'utf-8')], level=levelLogging, format='%(asctime)s %(levelname)s %(name)s %(message)s')
+root = logging.getLogger()
+root.setLevel(levelLogging)
+handler = logging.StreamHandler(sys.stdout)
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(message)ss')
+handler.setFormatter(formatter)
+root.addHandler(handler)

@@ -1,18 +1,34 @@
 import scrapy
 from scrapy.selector import Selector
 import logging
+import json
 
-# your spider
-class DouSection(scrapy.Spider):
-    name = "secoes-diario-oficial-da-uniao"
-    consumer_queue = None
-    itemScrapped = 0
+class spiderDou(scrapy.Spider):
+    name = "diario-oficial-da-uniao"
+    base_url="https://www.in.gov.br/leiturajornal"
+    data=""
+    secao=""
 
-    def __init__(self, queue, name=None, **kwargs):
-        super().__init__(name=name, **kwargs)
-        self.consumer_queue = queue
+    def __init__(self, data, secao):
+        self.data = data
+        self.secao = secao
+
+    def start_requests(self):
+        url = self.base_url + "?data=" + self.data + "&secao=" + self.secao
+        yield scrapy.Request(url, self.parse)
 
     def parse(self, response):
+        logger = logging.getLogger(__name__)
+        
+        sel = Selector(response)
+        extracted  = sel.xpath("//script[@type='application/json']/text()").extract_first()
+        json_data = json.loads(extracted)
+        jsonArray = json_data["jsonArray"]
+        for item in jsonArray:
+            url = "https://www.in.gov.br/en/web/dou/-/" + item["urlTitle"]
+            yield scrapy.Request(url, self.parse_section)
+
+    def parse_section(self, response):
         logger = logging.getLogger(__name__)
 
         sel = Selector(response)
@@ -29,14 +45,10 @@ class DouSection(scrapy.Spider):
 
         numberPage = douElem.xpath("//span[@class='secao-dou-data']/text()").extract_first()
 
-        url = response.request.url
         yield {
             "numberPage": int(numberPage),
             "artType": artType,
             "title": title,
             "paragraphs": '\n'.join(paragraphs),
-            "url": url
+            "url": response.url
         }
-
-        self.itemScrapped += 1
-        self.consumer_queue.put(self.itemScrapped * -1)

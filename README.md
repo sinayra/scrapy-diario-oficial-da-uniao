@@ -18,11 +18,10 @@ O programa assume que:
 
 ### Dependências do projeto 
 
-Este projeto utiliza o Python 3.8.3 e o pip 20.2.2. Além deles, este projeto também depende do pacote `Scrapy` e do pacote `Json Lines`. Instale-os com o comando abaixo:
+Este projeto utiliza o Python 3.8.3 e o pip 20.2.2. Além deles, este projeto também depende do pacote `Scrapy`. Instale-o com o comando abaixo:
 
 ```shell
 pip install Scrapy
-pip install json-lines
 ```
 
 ## Fluxo do programa
@@ -40,19 +39,12 @@ import loggerConfig
 ```
 O módulo `loggerConfig` configura o nível do log que será escrito, escrevendo o resultado na pasta *log* do projeto.
 
-### Módulos do programa
-```python
-from crawlDou import crawlDou
-from writeResult import writeResult
-```
-Inclui-se as funções de realizar o *Crawler* e a de escrever o resultado em um arquivo.
-
 ### Configurações do crawler
 ```python
 runner  = CrawlerRunner(
     {
-        'USER_AGENT': 'Sinayra-meuCrawlerComScrapy/1.1 (sinayra@hotmail.com)',
-        'LOG_STDOUT': False,
+        'USER_AGENT': 'Sinayra-meuCrawlerComScrapy/1.2 (sinayra@hotmail.com)',
+        'LOG_STDOUT': True,
         'LOG_ENABLED': True,
         'ROBOTSTXT_OBEY' : True,
         'RANDOMIZE_DOWNLOAD_DELAY': True,
@@ -61,8 +53,8 @@ runner  = CrawlerRunner(
         'AUTOTHROTTLE_ENABLED' : True,
         'HTTPCACHE_ENABLED': True,  # for development
         'FEEDS':{
-            'items.jl': {
-                'format': 'jsonlines',
+            'results.json': {
+                'format': 'json',
                 'encoding': 'utf8'
             }   
         },
@@ -70,27 +62,18 @@ runner  = CrawlerRunner(
 )
 ```
 
-Define-se inicialmente como o Crawler irá executar.A opção `FEED` define onde o resultado do *crawler* será escrito. No caso, definiu-se que o arquivo se chama `items.jl` e é do formato `jsonlines`. Este arquivo será usado como auxiliar ao longo do programa.
+Define-se inicialmente como o Crawler irá executar.A opção `FEED` define onde o resultado do *crawler* será escrito. No caso, definiu-se que o arquivo se chama `results.json` e é do formato `json`.
 
 Algumas observações destas opções de configuração:
 *  :exclamation: Altere o *user-agent* para melhor identificar o seu crawler. :exclamation:
 * É possível alterar o número de requests simultâneos alterando a opção `CONCURRENT_REQUESTS`, o que irá melhorar o desempenho ao escrever o resultado do *parser*, mas evite colocar um número muito alto para não sobrecarregar o servidor do governo. Minha sugestão é colocar no máximo `20`.
-* Enquanto você estiver alterando algum spider (como o [spider dou](dou.py) ou [spider dou section](douSection.py)), habilite a opção `HTTPCACHE_ENABLED` como verdadeira, para o Scrapy salvar em cache as páginas e não precisar fazer uma nova requisição de uma página que ele já visitou. Se está tudo certinho com o que ele tem que buscar, desabilite esta opção.
+* Enquanto você estiver alterando algum spider (como o [spider dou](spiderDou.py)), habilite a opção `HTTPCACHE_ENABLED` como verdadeira, para o Scrapy salvar em cache as páginas e não precisar fazer uma nova requisição de uma página que ele já visitou. Se está tudo certinho com o que ele tem que buscar, desabilite esta opção.
 
 ### Execução do crawler
 ```python
-crawlDou(runner, "07-08-2020", "dou3")
+d = runner.crawl(DouSpider, data="07-08-2020", secao="dou3")
+d.addBoth(lambda _: reactor.stop())
 reactor.run()
 ```
-A função `crawlDou` irá executar sequencialmente o *crawler* de buscar no site da Imprensa Nacional os links de cada uma das seções do diário especificado (com os argumentos `data` e `secao`), exibindo uma animação de *carregando*. Após buscar todos os links das seções, ele executa um segundo *crawler* para buscar o conteúdo de cada uma das seções.
+A função `runner.crawl` irá executar sequencialmente o *crawler* de buscar no site da Imprensa Nacional os links de cada uma das seções do diário especificado (com os argumentos `data` e `secao`), e em seguida, para cada link encontrado, navega neste link e retorna os campos pesquisados da seção. 
 A função `run` do `reactor` irá realizar uma chamada bloquante para impedir que o resto do programa execute até que o último *crawler* seja executado.
-
-### Escrevendo resultados
-```python
-if (os.path.exists("items.jl")):
-    writeResult("result.json", "items.jl")
-else:
-    raise FileNotFoundError("Required files not found. Try again later")
-```
-
-Por último, verifica-se se os arquivos temporários que foram gerados na etapa de *crawler* foram criados. Se foram, escreve o resultado no arquivo `result.json` a partir do arquivo `items.jl`, removendo este logo em seguida.
