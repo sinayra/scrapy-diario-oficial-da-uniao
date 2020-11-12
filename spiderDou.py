@@ -21,7 +21,7 @@ class spiderDou(scrapy.Spider):
         logger = logging.getLogger(__name__)
         
         sel = Selector(response)
-        extracted  = sel.xpath("//script[@type='application/json']/text()").extract_first()
+        extracted  = sel.xpath("//script[@id='params']/text()").extract_first()
         json_data = json.loads(extracted)
         jsonArray = json_data["jsonArray"]
         for item in jsonArray:
