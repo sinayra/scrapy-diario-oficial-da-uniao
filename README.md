@@ -39,7 +39,7 @@ Para rodar, execute o código: `python main.py`
 
 No arquivo `main.py`, altere as [configurações do *crawler*](main.py#L12) e os argumentos de [crawlDou](main.py#L32) (não é necessário alterar o primeiro argumento, somente o segundo, que se refere a `data`, e o terceiro, que se refere a `seção`).
 
-No arquivo `douSection.py`, o método [parse](douSection.py#L15) é responsável pela extração dos dados da página. Para modificá-los, é necessário um conhecimento prévio de HTML e do Seletor do Scrapy (no caso, eu estou utilizando os seletores seguindo a sintaxe o *xpath* por questões pessoais mesmo, mas ele também consegue usar a sintaxe do CSS pra selecionar estes elementos, que você pode conferir aqui: https://docs.scrapy.org/en/latest/topics/selectors.html).
+No arquivo `douSection.py`, o método [parse](douSection.py#L15) é responsável pela extração dos dados da página. Para modificá-los, é necessário um conhecimento prévio de HTML e do Selector do Scrapy (no caso, eu estou utilizando os seletores seguindo a sintaxe o *xpath* por questões pessoais mesmo, mas ele também consegue usar a sintaxe do CSS pra selecionar estes elementos, que você pode conferir aqui: https://docs.scrapy.org/en/latest/topics/selectors.html).
 
 *PS: Minha sugestão é que antes que você altere o código, rode a primeira vez sem alterar nada, apenas para conferir se todas as dependências foram instaladas corretamente.*
 
