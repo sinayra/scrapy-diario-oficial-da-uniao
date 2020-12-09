@@ -25,6 +25,11 @@ pip install Scrapy
 pip install json-lines
 ```
 
+## Executando o programa
+
+Após fazer as alterações no arquivo *main.py* das partes da **Configuração do Crawler** e dos argumentos de **CrawlDou** (descritos abaixo), rode o programa com o comando: 
+`python main.py`
+
 ## Fluxo do programa
 
 ### Imports
