@@ -25,12 +25,25 @@ pip install Scrapy
 pip install json-lines
 ```
 
-## Executando o programa
+## Para rodar este projeto
 
-Após fazer as alterações no arquivo *main.py* das partes da **Configuração do Crawler** e dos argumentos de **CrawlDou** (descritos abaixo), rode o programa com o comando: 
-`python main.py`
+O código disponibilizado neste repositório irá executar o o *crawler* no Jornal da **Seção 3** do dia **07 de Agosto de 2020**. Ele no final irá retornar um arquivo *json* contendo:
+1. O título do artigo (*ex: Aviso de Licitação/Extrato de termo Aditivo, etc...*);
+2. O órgão do artigo;
+3. O número da página do artigo; e
+4. O link do artigo (*para consulta*).
 
-## Fluxo do programa
+Para rodar, execute o código: `python main.py`
+
+### Modificando o projeto para as suas necessidades
+
+No arquivo `main.py`, altere as [configurações do *crawler*](main.py#L12) e os argumentos de [crawlDou](main.py#L32) (não é necessário alterar o primeiro argumento, somente o segundo, que se refere a `data`, e o terceiro, que se refere a `seção`).
+
+No arquivo `douSection.py`, o método [parse](douSection.py#L15) é responsável pela extração dos dados da página. Para modificá-los, é necessário um conhecimento prévio de HTML e do Seletor do Scrapy (no caso, eu estou utilizando os seletores seguindo a sintaxe o *xpath* por questões pessoais mesmo, mas ele também consegue usar a sintaxe do CSS pra selecionar estes elementos, que você pode conferir aqui: https://docs.scrapy.org/en/latest/topics/selectors.html).
+
+*PS: Minha sugestão é que antes que você altere o código, rode a primeira vez sem alterar nada, apenas para conferir se todas as dependências foram instaladas corretamente.*
+
+## Explicação do fluxo do programa
 
 ### Imports
 ```python
